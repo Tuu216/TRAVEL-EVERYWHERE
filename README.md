@@ -27,6 +27,9 @@
 1.	輸出的景點基本資料由google api抓取：
    使用 Google Places API 提取景點名稱、地址、評分、營業時間、價格層級和評論。
    技術：使用 Python 的 requests 庫進行 API 調用，解析 JSON 數據並存儲至資料庫（如 SQLite 或 PostgreSQL）。
+   甲、　SQLite：適合小型項目或本地開發。
+   乙、　PostgreSQL（若抓取IG資訊推薦與MongoDB混合使用）：適合大型資料集，支援複雜查詢、地理空間數據、多用戶併發訪問。
+   丙、　MongoDB：特別適合存儲 JSON 格式的 Google Places API 返回結果。適合存儲彈性結構數據（如動態評論、用戶標籤）。
 2.	推薦方法採用混和型過濾：
    甲、	基於內容的過濾：
       i.	利用 TF-IDF 方法生成景點特徵向量。
