@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .movie-list {
+            margin-top: 20px;
+        }
+        .movie {
+            background: #fff;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Recommended Movies</h1>
+    <div id="movie-list" class="movie-list"></div>
+
+    <script>
+        async function getRecommendations(userId) {
+            const response = await fetch(`http://127.0.0.1:5000/recommend/${userId}`);
+            const data = await response.json();
+            displayMovies(data);
+        }
+
+        function displayMovies(movies) {
+            const movieList = document.getElementById('movie-list');
+            movieList.innerHTML = '';
+            movies.forEach(movie => {
+                const movieDiv = document.createElement('div');
+                movieDiv.classList.add('movie');
+                movieDiv.innerHTML = `
+                    <h3>${movie.title}</h3>
+                    <p>Movie ID: ${movie.movieId}</p>
+                    <p>Average Rating: ${movie.rating.toFixed(2)}</p>
+                `;
+                movieList.appendChild(movieDiv);
+            });
+        }
+
+        // Fetch recommendations for user 1
+        getRecommendations(1);
+    </script>
+
+</body>
+</html>
