@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>台中旅遊景點推薦</title>
+    <style>
+        button {
+            margin: 5px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>台中旅遊景點推薦</h1>
+    <div>
+        <button onclick="getRecommendation('自然景點')">自然景點</button>
+        <button onclick="getRecommendation('文化景點')">文化景點</button>
+        <button onclick="getRecommendation('購物')">購物</button>
+        <button onclick="getRecommendation('美食')">美食</button>
+    </div>
+    <h2>推薦的景點:</h2>
+    <div id="recommendation"></div>
+
+    <script src="recommendation.js"></script>
+</body>
+</html>
