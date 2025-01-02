@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Recommender</title>
+</head>
+<body>
+    <h1>Welcome to the Place Recommender</h1>
+    <form action="/recommend" method="POST">
+        <label for="user_id">Enter User ID:</label>
+        <input type="number" id="user_id" name="user_id" required>
+        <button type="submit">Get Recommendations</button>
+    </form>
+
+    {% if recommended_places %}
+        <h2>Recommended Places for User {{ user_id }}</h2>
+        <ul>
+            {% for place in recommended_places %}
+                <li>{{ place['title'] }} - Rating: {{ place['rating'] }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No recommendations available. Please enter a valid User ID.</p>
+    {% endif %}
+
+    <h2>Popular Places</h2>
+    <img src="/static/popular_places.png" alt="Popular Places">
+</body>
+</html>
