@@ -7,9 +7,12 @@ API_KEY = 'AIzaSyAU35K8XohOeEW7u8tiXfi3hwi5hzFCaCY'
 BASE_URL = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
 QUERY = '台北美食'
 
+# 資料庫名稱（統一使用同一個檔案）
+DB_NAME = 'placesnew.db'
+
 # 建立 SQLite 資料庫並創建表格
 def init_db():
-    conn = sqlite3.connect('places.db')
+    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS places (
@@ -56,7 +59,7 @@ def fetch_places(query):
 
 # 儲存景點資料到資料庫
 def save_to_db(places, query):
-    conn = sqlite3.connect('places.db')
+    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     for place in places:
         try:
