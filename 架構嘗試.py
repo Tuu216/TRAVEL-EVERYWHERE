@@ -71,6 +71,42 @@ def save_to_database(places):
     conn.commit()
     conn.close()
 
+def filter_places(min_rating=0, max_results=10):
+    """
+    Query and filter places from the database based on minimum rating.
+
+    Parameters:
+    - min_rating (float): Minimum rating to filter places.
+    - max_results (int): Maximum number of results to return.
+
+    Returns:
+    - list of dict: Filtered places.
+    """
+    conn = sqlite3.connect("places.db")
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT name, address, rating, user_ratings_total
+        FROM places
+        WHERE rating >= ?
+        ORDER BY rating DESC
+        LIMIT ?
+    ''', (min_rating, max_results))
+
+    results = cursor.fetchall()
+    conn.close()
+
+    filtered_places = [
+        {
+            "name": row[0],
+            "address": row[1],
+            "rating": row[2],
+            "user_ratings_total": row[3]
+        } for row in results
+    ]
+
+    return filtered_places
+
 def main():
     API_KEY = "AIzaSyBrNGZNFHQfvy9zMTjmDNfNu9Pah1aP5eI"
     location = "25.0330,121.5654"  # Example: Taipei 101
@@ -78,16 +114,19 @@ def main():
     place_type = "tourist_attraction"  # Example: tourist attractions
 
     try:
+        # Fetch and save places
         places = fetch_google_places(API_KEY, location, radius, place_type)
-        print("Fetched Places:")
-        for idx, place in enumerate(places, start=1):
+        save_to_database(places)
+
+        # Filter and display places
+        min_rating = 4.0
+        print(f"\nPlaces with rating >= {min_rating}:")
+        filtered_places = filter_places(min_rating)
+        for idx, place in enumerate(filtered_places, start=1):
             print(f"{idx}. {place['name']}")
             print(f"   Address: {place['address']}")
             print(f"   Rating: {place['rating']} ({place['user_ratings_total']} reviews)")
             print("----------------------------------")
-
-        save_to_database(places)
-        print("\nData saved to database successfully.")
 
     except Exception as e:
         print(f"Error: {e}")
