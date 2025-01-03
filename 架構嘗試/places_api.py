@@ -1,73 +1,69 @@
 import requests
-from typing import Dict, List, Tuple
-from config import CONFIG
+from config import API_KEY, TYPE_TO_CATEGORY
 
-class PlacesAPI:
-    def __init__(self, api_key: str):
-        self.api_key = api_key
+print("Used API Key:", API_KEY)
 
-    def get_lat_lng(self, location: str) -> Tuple[float, float]:
-        # 加入國家確保更準確的地理編碼
-        full_address = f"{location}, 台灣"
-        url = "https://maps.googleapis.com/maps/api/geocode/json"
-        response = requests.get(url, params={
-            "key": self.api_key,
-            "address": full_address,
-            "language": "zh-TW"  # 設定語言為繁體中文
+def get_lat_lng_from_city(city_name):
+    # 修正地址格式並加入完整參數
+    base_url = "https://maps.googleapis.com/maps/api/geocode/json"
+    params = {
+        "key": API_KEY,
+        "address": city_name,
+        "language": "zh-TW",
+        "region": "tw",
+        "components": "country:TW"
+    }
+
+    print("Request URL:", base_url)
+    print("Request Params:", params)
+    
+    response = requests.get(base_url, params=params)
+    print("API Response:", response.json())  # 檢查 API 回應
+    
+    if response.status_code != 200:
+        raise Exception(f"Geocoding API 錯誤：{response.status_code}")
+
+    data = response.json()
+    if data['status'] == 'REQUEST_DENIED':
+        raise Exception("API 金鑰無效或未啟用服務")
+    
+    results = data.get("results", [])
+    if not results:
+        raise Exception("無法找到指定地點")
+
+    location = results[0]["geometry"]["location"]
+    return f"{location['lat']},{location['lng']}"
+
+def fetch_google_places(location, radius, place_type):
+    """使用 Google Places API 抓取附近景點資料。"""
+    base_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+    params = {
+        "key": API_KEY,
+        "location": location,
+        "radius": radius,
+        "type": place_type,
+    }
+
+    response = requests.get(base_url, params=params)
+    if response.status_code != 200:
+        raise Exception(f"Places API 錯誤：{response.status_code}")
+
+    results = response.json().get("results", [])
+    places = []
+    for result in results:
+        types = result.get("types", [])
+        tags = assign_tags(types)
+        places.append({
+            "name": result.get("name"),
+            "address": result.get("vicinity"),
+            "rating": result.get("rating"),
+            "user_ratings_total": result.get("user_ratings_total"),
+            "tags": tags
         })
-        
-        print("API Response:", response.json())
-        
-        if response.status_code != 200:
-            raise Exception(f"Geocoding API error: {response.status_code}")
-            
-        data = response.json()
-        if not data['results']:
-            raise Exception(f"No results found for location: {location}")
-            
-        location = data['results'][0]['geometry']['location']
-        return location['lat'], location['lng']
-        
 
-    def fetch_places(self, lat: float, lng: float, radius: int, place_type: str) -> List[Dict]:
-        url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
-        params = {
-            "key": self.api_key,
-            "location": f"{lat},{lng}",
-            "radius": radius,
-            "type": place_type,
-            "language": "zh-TW"
-        }
-        
-        response = requests.get(url, params=params)
-        if response.status_code != 200:
-            raise Exception(f"Places API error: {response.status_code}")
-            
-        data = response.json()
-        return self._process_places(data.get('results', []))
+    return places
 
-    def _process_places(self, results: List[Dict]) -> List[Dict]:
-        processed = []
-        for place in results:
-            processed.append({
-                'place_id': place['place_id'],
-                'name': place.get('name'),
-                'address': place.get('vicinity'),
-                'location': place['geometry']['location'],
-                'rating': place.get('rating'),
-                'user_ratings_total': place.get('user_ratings_total'),
-                'price_level': place.get('price_level'),
-                'tags': self._assign_tags(place.get('types', []))
-            })
-        return processed
-
-    def _assign_tags(self, types: List[str]) -> List[Tuple[str, str, str]]:
-        type_mapping = {
-            "tourist_attraction": ("attraction", "藝術人文", "古蹟"),
-            "museum": ("museum", "藝術人文", "展覽"),
-            "park": ("park", "運動休閒", "自然景觀"),
-            "restaurant": ("restaurant", "吃貨天堂", "餐廳"),
-            "shopping_mall": ("shopping", "娛樂遊玩", "購物中心")
-        }
-        
-        return [type_mapping[t] for t in types if t in type_mapping]
+def assign_tags(types):
+    """根據 Google Places API 的類型分配標籤。"""
+    tags = [TYPE_TO_CATEGORY[t] for t in types if t in TYPE_TO_CATEGORY]
+    return tags
