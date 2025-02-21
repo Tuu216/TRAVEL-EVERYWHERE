@@ -7,7 +7,7 @@ import os
 API_KEY = 'AIzaSyAU35K8XohOeEW7u8tiXfi3hwi5hzFCaCY'
 BASE_URL = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
 DETAILS_URL = 'https://maps.googleapis.com/maps/api/place/details/json'
-QUERY = '台北住宿'
+QUERY = '台北小吃'
 
 # 資料庫名稱
 DB_NAME = 'placestest.db'
