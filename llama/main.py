@@ -30,4 +30,5 @@ if __name__ == "__main__":
     # 測試推薦系統
     user_query = "請推薦台中適合親子的景點，並說明推薦原因。"
     print("🎯 使用模型：", MODEL_NAME)
+    print("🎯 API：", TOGETHER_API_KEY)
     print(get_recommendation(user_query))
