@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # API 和資料庫設定
-API_KEY = os.getenv("GOOGLE_API_KEY", "YOUR_DEFAULT_API_KEY")
+API_KEY = os.getenv("GOOGLE_API_KEY")
+print('api:',API_KEY)
 if not API_KEY:
     raise ValueError("找不到 GOOGLE_API_KEY 環境變數")
 DATABASE_NAME = "places.db"
